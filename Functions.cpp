@@ -1,28 +1,10 @@
 #include "Functions.h"
-#define DEFAULT "Root"
+#define DEFAULT_STR "Root"
 
 template<typename T>
 bool IsNull(T value)
 {
     return value == nullptr;
-}
-
-void PrintList(char** listHead)
-{
-    if(IsNull(listHead))
-    {
-        std::cerr<<"List is null in PrintList"<<std::endl;
-        return;
-    }
-
-    listHead = (char**)listHead[NEXT_NODE];
-
-    while(listHead != nullptr)
-    {
-        std::cout << listHead[VALUE] << " ";
-        listHead = (char**)listHead[NEXT_NODE];
-    }
-    std::cout<<std::endl;
 }
 
 void StringListInit(char*** list)
@@ -33,7 +15,7 @@ void StringListInit(char*** list)
         return;
     }
 
-    char* defaultStr = (char*)malloc(sizeof DEFAULT);
+    char* defaultStr = (char*)malloc(sizeof DEFAULT_STR);
 
     if(IsNull(defaultStr))
     {
@@ -41,7 +23,7 @@ void StringListInit(char*** list)
         return;
     }
 
-    strcpy_s(defaultStr,strlen(DEFAULT ) + 1, DEFAULT);
+    strcpy_s(defaultStr,strlen(DEFAULT_STR) + 1, DEFAULT_STR);
     *list = (char**)malloc(sizeof(char*) * 2);
 
     if(IsNull(*list))
@@ -91,7 +73,7 @@ void StringListAdd(char** list, String str)
 
     if(IsNull(tmpStr))
     {
-        std::cerr<<"tmp string is null in StringListAdd after malloc"<<std::endl;
+        std::cerr<<"Temporary string wasn't allocated in StringListAdd"<<std::endl;
         return;
     }
 
@@ -106,7 +88,7 @@ void StringListAdd(char** list, String str)
 
     if(IsNull(node))
     {
-        std::cerr<<"node is null in StringListAdd after malloc"<<std::endl;
+        std::cerr<<"Node wasn't allocated in StringListAdd"<<std::endl;
         free(tmpStr);
         return;
     }
@@ -131,7 +113,6 @@ void StringListRemove(char** list, String str)
     }
 
     char** head = list;
-
     while(head != nullptr)
     {
         int headIndex = -1;
@@ -164,27 +145,18 @@ void DeleteNode(char** list,unsigned int index)
         return;
     }
 
-    char** head = (char**)list[NEXT_NODE];
-
-    if(index == 0)
+    char** head = (char**)list;
+    unsigned int headIndex = -1;
+    while (headIndex != index - 1)
     {
-        char** root = list;
-        root[NEXT_NODE] = head[NEXT_NODE];
-        free(head);
+        head = (char **) head[NEXT_NODE];
+        ++headIndex;
     }
-    else
-    {
-        unsigned int headIndex = 0;
-        while (headIndex != index - 1)
-        {
-            head = (char **) head[NEXT_NODE];
-            ++headIndex;
-        }
 
-        char **tmp = (char **) head[NEXT_NODE];
-        head[NEXT_NODE] = tmp[NEXT_NODE];
-        free(tmp);
-    }
+    char **nodeKeeper = (char **) head[NEXT_NODE];
+    head[NEXT_NODE] = nodeKeeper[NEXT_NODE];
+    free(nodeKeeper[VALUE]);
+    free(nodeKeeper);
 }
 
 int StringListSize(char** list)
@@ -329,6 +301,24 @@ void Swap(char** firstEl, char** secEl)
     char* tmpEl = *firstEl;
     *firstEl = *secEl;
     *secEl = tmpEl;
+}
+
+void PrintList(char** listHead)
+{
+    if(IsNull(listHead))
+    {
+        std::cerr<<"List is null in PrintList"<<std::endl;
+        return;
+    }
+
+    listHead = (char**)listHead[NEXT_NODE];
+
+    while(listHead != nullptr)
+    {
+        std::cout << listHead[VALUE] << " ";
+        listHead = (char**)listHead[NEXT_NODE];
+    }
+    std::cout<<std::endl;
 }
 
 void ShowUI(char** list)
