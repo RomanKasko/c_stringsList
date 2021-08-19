@@ -1,16 +1,10 @@
 #include "Functions.h"
+#define DEFAULT "Root"
 
 template<typename T>
 bool IsNull(T value)
 {
-    if(value == nullptr)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return value == nullptr;
 }
 
 void PrintList(char** listHead)
@@ -31,7 +25,6 @@ void PrintList(char** listHead)
     std::cout<<std::endl;
 }
 
-/* -----------DONE----------- Initializes list */
 void StringListInit(char*** list)
 {
     if(IsNull(list))
@@ -40,14 +33,28 @@ void StringListInit(char*** list)
         return;
     }
 
-    char* defaultStr = (char*)"Root";
+    char* defaultStr = (char*)malloc(sizeof DEFAULT);
 
+    if(IsNull(defaultStr))
+    {
+        std::cerr<<"str is null in StringListInit after malloc"<<std::endl;
+        return;
+    }
+
+    strcpy_s(defaultStr,strlen(DEFAULT ) + 1, DEFAULT);
     *list = (char**)malloc(sizeof(char*) * 2);
+
+    if(IsNull(*list))
+    {
+        std::cerr<<"List is null in StringListInit after malloc"<<std::endl;
+        free(defaultStr);
+        return;
+    }
+
     (*list)[VALUE] = defaultStr;
     (*list)[NEXT_NODE] = nullptr;
 }
 
-/* Destroy list and set pointer to nullptr. */
 void StringListDestroy(char*** list)
 {
     if(IsNull(list))
@@ -56,16 +63,16 @@ void StringListDestroy(char*** list)
         return;
     }
 
-    char** currentNode;
+    char** nextNode;
     do
     {
-        currentNode = (char**)(*list)[NEXT_NODE];
-        free(list[VALUE]);
-        *list = currentNode;
-    }while(currentNode != nullptr);
+        nextNode = (char**)(*list)[NEXT_NODE];
+        free((*list)[VALUE]);
+        free(*list);
+        *list = nextNode;
+    }while(nextNode != nullptr);
 }
 
-/* -----------DONE----------- Inserts value at the end of the list. */
 void StringListAdd(char** list, String str)
 {
     if(IsNull(list))
@@ -80,9 +87,15 @@ void StringListAdd(char** list, String str)
     }
 
     char** head = list;
-    char* tmpStr = (char*)malloc(sizeof(char*));
-    strcpy_s(tmpStr,strlen(str)+1,str);
+    char* tmpStr = (char*)malloc(strlen(str)+1);
 
+    if(IsNull(tmpStr))
+    {
+        std::cerr<<"tmp string is null in StringListAdd after malloc"<<std::endl;
+        return;
+    }
+
+    strcpy_s(tmpStr,strlen(str)+1,str);
 
     while(head[NEXT_NODE] != nullptr)
     {
@@ -90,14 +103,20 @@ void StringListAdd(char** list, String str)
     }
 
     char** node = (char**)malloc(sizeof(char*) * 2);
-    node[VALUE] = (char*)malloc(strlen(str)+1);
+
+    if(IsNull(node))
+    {
+        std::cerr<<"node is null in StringListAdd after malloc"<<std::endl;
+        free(tmpStr);
+        return;
+    }
+
     node[VALUE] = tmpStr;
     node[NEXT_NODE] = nullptr;
 
     head[NEXT_NODE] = (char*)node;
 }
 
-/* -----------DONE----------- Removes all occurrences of str in the list. */
 void StringListRemove(char** list, String str)
 {
     if(IsNull(list))
@@ -117,7 +136,10 @@ void StringListRemove(char** list, String str)
     {
         int headIndex = -1;
         int newIndex = StringListIndexOf(head,str);
-        if(newIndex < 0) return;
+        if(newIndex < 0)
+        {
+            return;
+        }
 
         while(headIndex != newIndex)
         {
@@ -165,7 +187,6 @@ void DeleteNode(char** list,unsigned int index)
     }
 }
 
-/* -----------DONE----------- Returns the number of items in the list. */
 int StringListSize(char** list)
 {
     if(IsNull(list))
@@ -184,7 +205,6 @@ int StringListSize(char** list)
     return size;
 }
 
-/* -----------DONE----------- Returns the index position of the first occurrence of str in the list. */
 int StringListIndexOf(char** list, char* str)
 {
     if(IsNull(list))
@@ -210,7 +230,6 @@ int StringListIndexOf(char** list, char* str)
     return -1;
 }
 
-/* -----------DONE----------- Removes duplicate entries from the list. */
 void StringListRemoveDuplicates(char** list)
 {
     if(IsNull(list))
@@ -232,7 +251,6 @@ void StringListRemoveDuplicates(char** list)
     }
 }
 
-/* -----------DONE----------- Replaces every occurrence of the before, in each of the string lists's strings, with after. */
 void StringListReplaceInStrings(char** list, char* before, char* after)
 {
     if(IsNull(list))
@@ -271,7 +289,6 @@ void StringListReplaceInStrings(char** list, char* before, char* after)
     }
 }
 
-/* -----------DONE----------- Sorts the list of strings in ascending order */
 void StringListSort(char** list)
 {
     if(IsNull(list))
@@ -336,6 +353,12 @@ void ShowUI(char** list)
             {
                 std::cout<<" Write your string: ";
                 char *str = (char*)malloc(sizeof(char*));
+
+                if(IsNull(str))
+                {
+                    std::cerr<<"String was not allocated"<<std::endl;
+                    return;
+                }
                 std::cin>>str;
 
                 StringListAdd(list,str);
@@ -349,6 +372,12 @@ void ShowUI(char** list)
             {
                 std::cout<<" Write string to delete: ";
                 char *str = (char*)malloc(sizeof(char*));
+
+                if(IsNull(str))
+                {
+                    std::cerr<<"String was not allocated"<<std::endl;
+                    return;
+                }
                 std::cin>>str;
 
                 StringListRemove(list,str);
@@ -368,10 +397,22 @@ void ShowUI(char** list)
             {
                 std::cout<<" Write string to replace: ";
                 char *str = (char*)malloc(sizeof(char*));
+
+                if(IsNull(str))
+                {
+                    std::cerr<<"String was not allocated"<<std::endl;
+                    return;
+                }
                 std::cin>>str;
 
                 std::cout<<"Write your new string: ";
                 char *newStr = (char*)malloc(sizeof(char*));
+
+                if(IsNull(newStr))
+                {
+                    std::cerr<<"new String was not allocated"<<std::endl;
+                    return;
+                }
                 std::cin>>newStr;
 
                 StringListReplaceInStrings(list,str,newStr);
@@ -399,6 +440,13 @@ void ShowUI(char** list)
             {
                 std::cout<<" Write string to find: ";
                 char *str = (char*)malloc(sizeof(char*));
+
+                if(IsNull(str))
+                {
+                    std::cerr<<"String was not allocated"<<std::endl;
+                    return;
+                }
+
                 std::cin>>str;
 
                 int index = StringListIndexOf(list,str);

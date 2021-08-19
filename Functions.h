@@ -1,4 +1,3 @@
-// Created by Romeo on 03.08.2021.
 #ifndef C_STRINGSLIST_FUNCTIONS_H
 #define C_STRINGSLIST_FUNCTIONS_H
 
