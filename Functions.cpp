@@ -145,7 +145,7 @@ void DeleteNode(char** list,unsigned int index)
         return;
     }
 
-    char** head = (char**)list;
+    char** head = list;
     unsigned int headIndex = -1;
     while (headIndex != index - 1)
     {
@@ -195,7 +195,10 @@ int StringListIndexOf(char** list, char* str)
     int index = 0;
     while(list != nullptr)
     {
-        if(strcmp(list[VALUE],str) == 0) return index;
+        if(strcmp(list[VALUE],str) == 0)
+        {
+            return index;
+        }
         list = (char**)list[NEXT_NODE];
         ++index;
     }
@@ -257,6 +260,7 @@ void StringListReplaceInStrings(char** list, char* before, char* after)
             ++headIndex;
         }
 
+        free(head[VALUE]);
         head[VALUE] = after;
     }
 }
@@ -269,6 +273,7 @@ void StringListSort(char** list)
         return;
     }
 
+    // Using selection sort algorithm
     char** currentNode;
     char** minString;
     for(char** swapEl = (char**)list[NEXT_NODE]; swapEl[NEXT_NODE] != nullptr; swapEl = (char**)swapEl[NEXT_NODE])
